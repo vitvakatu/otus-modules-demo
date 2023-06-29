@@ -28,18 +28,21 @@
 pub fn add(left: i32, right: i32) -> i32 {
     left + right
 }
-
+mod foo;
+pub mod prelude;
 /// Один из подмодулей нашего крейта. Он приватный, потому что содержит детали реализации.
 ///
 /// Однако там же определена функция `public_api`, которую мы хотели бы использовать снаружи.
 mod internal {
     /// Это часть публичного API нашей библиотеки.
-    fn public_api() -> i32 {
+    use super::*;
+    use crate::foo;
+    pub fn public_api() -> i32 {
         add(foo::give_answer(), internal_function())
     }
 
     /// Мы хотим тестировать эту функцию, но не хотим давать к ней доступ извне нашего крейта.
-    fn internal_function() -> i32 {
+    pub fn internal_function() -> i32 {
         println!("called `crate::internal::internal_function()`");
         3
     }
@@ -48,6 +51,7 @@ mod internal {
 /// Ниже располагаются наши юнит-тесты.
 #[cfg(test)]
 mod tests {
+    use super::internal::*;
     use super::*;
 
     /// Этот тест сгенерирован Cargo автоматически при создании проекта.
