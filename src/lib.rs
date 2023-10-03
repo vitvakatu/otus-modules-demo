@@ -49,15 +49,9 @@ mod internal {
     }
 
     /// Мы хотим тестировать эту функцию, но не хотим давать к ней доступ извне нашего крейта.
-    fn internal_function() -> i32 {
+    pub(crate) fn internal_function() -> i32 {
         println!("called `crate::internal::internal_function()`");
         3
-    }
-
-    /// Этот тест проверяет, что функция `internal_function` из модуля `internal` доступна в юнит-тестах.
-    #[test]
-    fn internal_function_is_accessible() {
-        assert_eq!(internal_function(), 3);
     }
 }
 
@@ -77,5 +71,16 @@ mod tests {
     #[test]
     fn function_from_module_foo_is_accessible() {
         assert_eq!(foo::give_answer(), 42);
+    }
+
+    /// Этот тест проверяет, что функция `internal_function` из модуля `internal` доступна в юнит-тестах.
+    #[test]
+    fn internal_function_is_accessible() {
+        assert_eq!(crate::internal::internal_function(), 3);
+    }
+
+    #[test]
+    fn function_from_bar_is_accessible() {
+        assert_eq!(foo::bar::function_from_bar(), 10);
     }
 }
