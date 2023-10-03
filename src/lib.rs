@@ -24,6 +24,12 @@
 //! - Чтобы импортировать символ, он должен быть публичным (`pub`) и все подмодули на пути до него тоже
 //!   должны быть публичными.
 
+pub mod prelude {
+    pub use crate::internal::public_api;
+}
+
+mod foo;
+
 /// Эта функция сгенерирована Cargo автоматически при создании проекта. Нам пригодится.
 pub fn add(left: i32, right: i32) -> i32 {
     left + right
@@ -32,14 +38,18 @@ pub fn add(left: i32, right: i32) -> i32 {
 /// Один из подмодулей нашего крейта. Он приватный, потому что содержит детали реализации.
 ///
 /// Однако там же определена функция `public_api`, которую мы хотели бы использовать снаружи.
+
 mod internal {
+    use crate::add;
+    use crate::foo;
+    
     /// Это часть публичного API нашей библиотеки.
-    fn public_api() -> i32 {
+    pub fn public_api() -> i32 {
         add(foo::give_answer(), internal_function())
     }
 
     /// Мы хотим тестировать эту функцию, но не хотим давать к ней доступ извне нашего крейта.
-    fn internal_function() -> i32 {
+    pub(crate) fn internal_function() -> i32 {
         println!("called `crate::internal::internal_function()`");
         3
     }
@@ -66,6 +76,11 @@ mod tests {
     /// Этот тест проверяет, что функция `internal_function` из модуля `internal` доступна в юнит-тестах.
     #[test]
     fn internal_function_is_accessible() {
-        assert_eq!(internal_function(), 3);
+        assert_eq!(crate::internal::internal_function(), 3);
+    }
+
+    #[test]
+    fn function_from_bar_is_accessible() {
+        assert_eq!(foo::bar::function_from_bar(), 10);
     }
 }
